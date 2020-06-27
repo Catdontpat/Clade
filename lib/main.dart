@@ -1,19 +1,48 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'dart:typed_data';
 
 void main() {
 //  runApp(MyApp());
+  final tempDecoder = TempDecoder();
   ServerSocket.bind('127.0.0.1', 8080).then((serverSocket) {
     print('connected!');
     serverSocket.listen((event) {
-      Converter<Uint8List, String> decoder = utf8.decoder as Converter<Uint8List, String>;
-      event.transform(decoder).listen((event) {
+      event.transform(tempDecoder).listen((event) {
         print('event => $event');
       });
     });
   });
+}
+
+class TempDecoder extends Converter<Uint8List, String> {
+  @override
+  String convert(Uint8List input) {
+    print('input => $input');
+    return "";
+  }
+
+  @override
+  Sink<Uint8List> startChunkedConversion(Sink<String> sink) =>
+      new TempSink(sink);
+}
+
+class TempSink extends ChunkedConversionSink<Uint8List> {
+  final Sink<String> _sink;
+
+  TempSink(this._sink);
+
+  @override
+  void add(Uint8List chunk) {
+    print('chunk => $chunk');
+    // TODO: implement add
+  }
+
+  @override
+  void close() {
+    print('closed!');
+    // TODO: implement close
+  }
 }
 
 //class MyApp extends StatelessWidget {
