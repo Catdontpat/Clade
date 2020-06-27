@@ -18,7 +18,6 @@ void main() {
 class TempDecoder extends Converter<Uint8List, String> {
   @override
   String convert(Uint8List input) {
-    print('input => $input');
     return "";
   }
 
@@ -34,15 +33,12 @@ class TempSink extends ChunkedConversionSink<Uint8List> {
 
   @override
   void add(Uint8List chunk) {
-    var decode = utf8.decode(chunk);
-    print('decode => $chunk');
-    // TODO: implement add
+    _sink.add(utf8.decode(chunk));
   }
 
   @override
   void close() {
     print('closed!');
-    // TODO: implement close
   }
 }
 
