@@ -34,7 +34,8 @@ class TempSink extends ChunkedConversionSink<Uint8List> {
 
   @override
   void add(Uint8List chunk) {
-    print('chunk => $chunk');
+    var decode = utf8.decode(chunk);
+    print('decode => $chunk');
     // TODO: implement add
   }
 
