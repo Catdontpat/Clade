@@ -1,13 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'dart:typed_data';
+
 void main() {
 //  runApp(MyApp());
   ServerSocket.bind('127.0.0.1', 8080).then((serverSocket) {
     print('connected!');
     serverSocket.listen((event) {
-      print('listening...');
-      print('event => $event');
+      Converter<Uint8List, String> decoder = utf8.decoder as Converter<Uint8List, String>;
+      event.transform(decoder).listen((event) {
+        print('event => $event');
+      });
     });
   });
 }
