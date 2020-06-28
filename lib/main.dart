@@ -33,8 +33,8 @@ main() async {
         byteBloc.writeInt64(guid);
         byteBloc.writeInt8List(magic);
         byteBloc.writeInt32(packetLength);
-        Int8List encode = utf8.encode(serverinf);
-        byteBloc.writeInt8List(encode);
+        List<int> encode = utf8.encode(serverinf);
+        byteBloc.writeInt8List(Int8List.fromList(encode));
         var send = socket.send(byteBloc.list, d.address, d.port);
         print('sent: $send');
       }
