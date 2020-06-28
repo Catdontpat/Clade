@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:byte_bloc/byte_bloc.dart';
 import 'package:collection/collection.dart';
@@ -32,7 +33,8 @@ main() async {
         byteBloc.writeInt64(guid);
         byteBloc.writeInt8List(magic);
         byteBloc.writeInt32(packetLength);
-        byteBloc.writeInt8List(utf8.encode(serverinf));
+        Int8List encode = utf8.encode(serverinf);
+        byteBloc.writeInt8List(encode);
         var send = socket.send(byteBloc.list, d.address, d.port);
         print('sent: $send');
       }
