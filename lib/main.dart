@@ -1,15 +1,19 @@
 import 'dart:io';
 
-Future main() async {
-  var server = await HttpServer.bind(
-    InternetAddress.loopbackIPv4,
-    4040,
-  );
-  print('Listening on localhost:${server.port}');
-
-  await for (HttpRequest request in server) {
-    await request.response.close();
-  }
+main() async {
+  RawDatagramSocket.bind(InternetAddress.ANY_IP_V4, 4444)
+      .then((RawDatagramSocket socket) {
+    print('Datagram socket ready to receive');
+    print('${socket.address.address}:${socket.port}');
+    socket.listen((RawSocketEvent e) {
+      Datagram d = socket.receive();
+      if (d == null) {
+        return;
+      }
+      String message = new String.fromCharCodes(d.data).trim();
+      print('Datagram from ${d.address.address}:${d.port}: ${message}');
+    });
+  });
 }
 
 //class MyApp extends StatelessWidget {
