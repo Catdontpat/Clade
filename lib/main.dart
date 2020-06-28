@@ -20,7 +20,8 @@ main() async {
       }
       final data = d.data;
       final byteBloc = ByteBloc(data);
-      byteBloc.readInt8();
+      var packetId = byteBloc.readInt8();
+      print(packetId);
       final pingTime = byteBloc.readInt64();
       final magic = byteBloc.readInt8List(16);
       if (ListEquality().equals(magic, list)) {
