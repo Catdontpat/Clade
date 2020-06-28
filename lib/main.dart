@@ -1,9 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
+
+import 'package:byte_bloc/byte_bloc.dart';
+import 'package:collection/collection.dart';
 
 main() async {
-  RawDatagramSocket.bind(InternetAddress.anyIPv4, 8080)
-      .then((RawDatagramSocket socket) {
+  final list = [0, -1, -1, 0, -2, -2, -2, -2, -3, -3, -3, -3, 18, 52, 86, 120];
+  final guid = Random.secure().nextInt(2 ^ 63 - 1);
+  final server = RawDatagramSocket.bind(InternetAddress.anyIPv4, 8080);
+  server.then((RawDatagramSocket socket) {
     print('Datagram socket ready to receive');
     print('${socket.address.address}:${socket.port}');
     socket.listen((RawSocketEvent e) {
@@ -11,69 +17,25 @@ main() async {
       if (d == null) {
         return;
       }
-      var data = d.data;
-      print('$data');
+      final data = d.data;
+      final byteBloc = ByteBloc(data);
+      byteBloc.readInt8();
+      final pingTime = byteBloc.readInt64();
+      final magic = byteBloc.readInt8List(16);
+      if (ListEquality().equals(magic, list)) {
+        final serverinf =
+            "MCPE;Dedicated Server;407;1.16.0;0;10;$guid;Bedrock level;Survival;1;19132;19133;";
+        final packetLength = 35 + serverinf.length;
+        final byteBloc = ByteBloc.empty(packetLength);
+        byteBloc.writeInt8(0x1c);
+        byteBloc.writeInt64(pingTime);
+        byteBloc.writeInt64(guid);
+        byteBloc.writeInt8List(magic);
+        byteBloc.writeInt32(packetLength);
+        byteBloc.writeInt8List(utf8.encode(serverinf));
+        var send = socket.send(byteBloc.list, d.address, d.port);
+        print('sent: $send');
+      }
     });
   });
 }
-
-//class MyApp extends StatelessWidget {
-//  @override
-//  Widget build(BuildContext context) {
-//    return MaterialApp(
-//      title: 'Flutter Demo',
-//      theme: ThemeData(
-//        primarySwatch: Colors.blue,
-//        visualDensity: VisualDensity.adaptivePlatformDensity,
-//      ),
-//      home: MyHomePage(title: 'Flutter Demo Home Page'),
-//    );
-//  }
-//}
-//
-//class MyHomePage extends StatefulWidget {
-//  MyHomePage({Key key, this.title}) : super(key: key);
-//
-//  final String title;
-//
-//  @override
-//  _MyHomePageState createState() => _MyHomePageState();
-//}
-//
-//class _MyHomePageState extends State<MyHomePage> {
-//  int _counter = 0;
-//
-//  void _incrementCounter() {
-//    setState(() {
-//      _counter++;
-//    });
-//  }
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    return Scaffold(
-//      appBar: AppBar(
-//        title: Text(widget.title),
-//      ),
-//      body: Center(
-//        child: Column(
-//          mainAxisAlignment: MainAxisAlignment.center,
-//          children: <Widget>[
-//            Text(
-//              'You have pushed the button this many times:',
-//            ),
-//            Text(
-//              '$_counter',
-//              style: Theme.of(context).textTheme.headline4,
-//            ),
-//          ],
-//        ),
-//      ),
-//      floatingActionButton: FloatingActionButton(
-//        onPressed: _incrementCounter,
-//        tooltip: 'Increment',
-//        child: Icon(Icons.add),
-//      ),
-//    );
-//  }
-//}
