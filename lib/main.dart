@@ -1,44 +1,15 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
-void main() {
-//  runApp(MyApp());
-  final tempDecoder = TempDecoder();
-  ServerSocket.bind('127.0.0.1', 8080).then((serverSocket) {
-    print('connected!');
-    serverSocket.listen((event) {
-      event.transform(tempDecoder).listen((event) {
-        print('event => $event');
-      });
-    });
-  });
-}
+Future main() async {
+  var server = await HttpServer.bind(
+    InternetAddress.loopbackIPv4,
+    4040,
+  );
+  print('Listening on localhost:${server.port}');
 
-class TempDecoder extends Converter<Uint8List, String> {
-  @override
-  String convert(Uint8List input) {
-    return "";
-  }
-
-  @override
-  Sink<Uint8List> startChunkedConversion(Sink<String> sink) =>
-      new TempSink(sink);
-}
-
-class TempSink extends ChunkedConversionSink<Uint8List> {
-  final Sink<String> _sink;
-
-  TempSink(this._sink);
-
-  @override
-  void add(Uint8List chunk) {
-    _sink.add(utf8.decode(chunk));
-  }
-
-  @override
-  void close() {
-    print('closed!');
+  await for (HttpRequest request in server) {
+    request.response.write('Hello, world!');
+    await request.response.close();
   }
 }
 
