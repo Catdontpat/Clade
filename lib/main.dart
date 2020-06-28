@@ -1,7 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 
 main() async {
-  RawDatagramSocket.bind(InternetAddress.ANY_IP_V4, 4444)
+  RawDatagramSocket.bind(InternetAddress.anyIPv4, 8080)
       .then((RawDatagramSocket socket) {
     print('Datagram socket ready to receive');
     print('${socket.address.address}:${socket.port}');
@@ -10,8 +11,8 @@ main() async {
       if (d == null) {
         return;
       }
-      String message = new String.fromCharCodes(d.data).trim();
-      print('Datagram from ${d.address.address}:${d.port}: ${message}');
+      var data = d.data;
+      print('$data');
     });
   });
 }
