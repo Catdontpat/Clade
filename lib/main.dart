@@ -1,9 +1,20 @@
+import 'dart:io';
 import 'dart:math';
+
+import 'package:udp/udp.dart';
 
 main() async {
   final list = [0, -1, -1, 0, -2, -2, -2, -2, -3, -3, -3, -3, 18, 52, 86, 120];
   final guid = Random.secure().nextInt(2 ^ 63 - 1);
-
+  var sender = await UDP.bind(Endpoint.any(port: Port(65000)));
+  var dataLength = await sender.send(
+      "Hello World!".codeUnits, Endpoint.broadcast(port: Port(65001)));
+  stdout.write("$dataLength bytes sent.");
+  var receiver = await UDP.bind(Endpoint.loopback(port: Port(65002)));
+  await receiver.listen((datagram) {
+    var str = String.fromCharCodes(datagram.data);
+    stdout.write(str);
+  }, timeout: Duration(seconds: 20));
 //  final server = RawDatagramSocket.bind(InternetAddress.anyIPv4, 8080);
 //  server.then((RawDatagramSocket socket) {
 //    print('Datagram socket ready to receive');
